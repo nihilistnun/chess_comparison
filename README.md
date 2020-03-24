@@ -1,5 +1,5 @@
-# chess_console
+# chess_comparison
 
-This is a simple chess game, written in C++, that runs in the console for Windows.
+This is my Chess project for my stage 3 dissertation at Newcastle University
 
-For more information, please read the [article](https://www.codeproject.com/Articles/1214018/Chess-console-game-in-Cplusplus).
+I am forking a [chess_console](https://github.com/jeromevonk/chess_console) project from this [article](https://www.codeproject.com/Articles/1214018/Chess-console-game-in-Cplusplus).
