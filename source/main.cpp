@@ -408,6 +408,16 @@ void newGame(void)
    current_game = new Game();
 }
 
+void newEndGame(int setup)
+{
+    if (NULL != current_game)
+    {
+        delete current_game;
+    }
+
+    current_game = new Game(setup);
+}
+
 void undoMove(void)
 {
    if ( false == current_game->undoIsPossible() )
@@ -841,7 +851,7 @@ int main()
             case 'N':
             case 'n':
             {
-               newGame();
+               newEndGame(0);
                clearScreen();
                printLogo();
                printSituation(*current_game);
