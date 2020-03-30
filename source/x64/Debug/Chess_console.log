@@ -1,5 +1,5 @@
 ﻿  chess.cpp
-  user_interface.cpp
-C:\Users\Nick\source\repos\chess_comparison\source\user_interface.cpp(125,38): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  main.cpp
+C:\Users\Nick\source\repos\chess_comparison\source\main.cpp(854,27): error C2660: 'newEndGame': function does not take 0 arguments
+C:\Users\Nick\source\repos\chess_comparison\source\main.cpp(411,6): message : see declaration of 'newEndGame'
   Generating Code...
-  Chess_console.vcxproj -> C:\Users\Nick\Source\Repos\chess_comparison\source\x64\Debug\Chess_console.exe

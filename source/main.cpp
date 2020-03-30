@@ -658,6 +658,210 @@ void movePiece(void)
    return;
 }
 
+void movePiece(std::string move_from, std::string move_to)
+{
+    std::string to_record;
+    if (move_from.length() > 2)
+    {
+        createNextMessage("You should type only two characters (column and row)\n");
+        return;
+    }
+
+    Chess::Position present;
+    present.iColumn = move_from[0];
+    present.iRow = move_from[1];
+
+    // ---------------------------------------------------
+    // Did the user pick a valid piece?
+    // Must check if:
+    // - It's inside the board (A1-H8)
+    // - There is a piece in the square
+    // - The piece is consistent with the player's turn
+    // ---------------------------------------------------
+    present.iColumn = toupper(present.iColumn);
+
+    if (present.iColumn < 'A' || present.iColumn > 'H')
+    {
+        createNextMessage("Invalid column.\n");
+        return;
+    }
+
+    if (present.iRow < '0' || present.iRow > '8')
+    {
+        createNextMessage("Invalid row.\n");
+        return;
+    }
+
+    // Put in the string to be logged
+    to_record += present.iColumn;
+    to_record += present.iRow;
+    to_record += "-";
+
+    // Convert column from ['A'-'H'] to [0x00-0x07]
+    present.iColumn = present.iColumn - 'A';
+
+    // Convert row from ['1'-'8'] to [0x00-0x07]
+    present.iRow = present.iRow - '1';
+
+    char chPiece = current_game->getPieceAtPosition(present.iRow, present.iColumn);
+    cout << "Piece is " << char(chPiece) << "\n";
+
+    if (0x20 == chPiece)
+    {
+        createNextMessage("You picked an EMPTY square.\n");
+        return;
+    }
+
+    if (Chess::WHITE_PIECE == current_game->getCurrentTurn())
+    {
+        if (false == Chess::isWhitePiece(chPiece))
+        {
+            createNextMessage("It is WHITE's turn and you picked a BLACK piece\n");
+            return;
+        }
+    }
+    else
+    {
+        if (false == Chess::isBlackPiece(chPiece))
+        {
+            createNextMessage("It is BLACK's turn and you picked a WHITE piece\n");
+            return;
+        }
+    }
+
+    // ---------------------------------------------------
+    // Get user input for the square to move to
+    // ---------------------------------------------------
+    if (move_to.length() > 2)
+    {
+        createNextMessage("You should type only two characters (column and row)\n");
+        return;
+    }
+
+    // ---------------------------------------------------
+    // Did the user pick a valid house to move?
+    // Must check if:
+    // - It's inside the board (A1-H8)
+    // - The move is valid
+    // ---------------------------------------------------
+    Chess::Position future;
+    future.iColumn = move_to[0];
+    future.iRow = move_to[1];
+
+    future.iColumn = toupper(future.iColumn);
+
+    if (future.iColumn < 'A' || future.iColumn > 'H')
+    {
+        createNextMessage("Invalid column.\n");
+        return;
+    }
+
+    if (future.iRow < '0' || future.iRow > '8')
+    {
+        createNextMessage("Invalid row.\n");
+        return;
+    }
+
+    // Put in the string to be logged
+    to_record += future.iColumn;
+    to_record += future.iRow;
+
+    // Convert columns from ['A'-'H'] to [0x00-0x07]
+    future.iColumn = future.iColumn - 'A';
+
+    // Convert row from ['1'-'8'] to [0x00-0x07]
+    future.iRow = future.iRow - '1';
+
+    // Check if it is not the exact same square
+    if (future.iRow == present.iRow && future.iColumn == present.iColumn)
+    {
+        createNextMessage("[Invalid] You picked the same square!\n");
+        return;
+    }
+
+    // Is that move allowed?
+    Chess::EnPassant  S_enPassant = { 0 };
+    Chess::Castling   S_castling = { 0 };
+    Chess::Promotion  S_promotion = { 0 };
+
+    if (false == isMoveValid(present, future, &S_enPassant, &S_castling, &S_promotion))
+    {
+        createNextMessage("[Invalid] Piece can not move to that square!\n");
+        return;
+    }
+
+    // ---------------------------------------------------
+    // Promotion: user most choose a piece to
+    // replace the pawn
+    // Promotion is defaulted to queen for algorithms
+    // ---------------------------------------------------
+    if (S_promotion.bApplied == true)
+    {
+        std::string piece = "Q";
+
+        char chPromoted = toupper(piece[0]);
+
+        S_promotion.chBefore = current_game->getPieceAtPosition(present.iRow, present.iColumn);
+
+        if (Chess::WHITE_PLAYER == current_game->getCurrentTurn())
+        {
+            S_promotion.chAfter = toupper(chPromoted);
+        }
+        else
+        {
+            S_promotion.chAfter = tolower(chPromoted);
+        }
+
+        to_record += '=';
+        to_record += toupper(chPromoted); // always log with a capital letter
+    }
+
+    // ---------------------------------------------------
+    // Log the move: do it prior to making the move
+    // because we need the getCurrentTurn()
+    // ---------------------------------------------------
+    current_game->logMove(to_record);
+
+    // ---------------------------------------------------
+    // Make the move
+    // ---------------------------------------------------
+    makeTheMove(present, future, &S_enPassant, &S_castling, &S_promotion);
+
+    // ---------------------------------------------------------------
+    // Check if this move we just did put the oponent's king in check
+    // Keep in mind that player turn has already changed
+    // ---------------------------------------------------------------
+    if (true == current_game->playerKingInCheck())
+    {
+        if (true == current_game->isCheckMate())
+        {
+            if (Chess::WHITE_PLAYER == current_game->getCurrentTurn())
+            {
+                appendToNextMessage("Checkmate! Black wins the game!\n");
+            }
+            else
+            {
+                appendToNextMessage("Checkmate! White wins the game!\n");
+            }
+        }
+        else
+        {
+            // Add to the string with '+=' because it's possible that
+            // there is already one message (e.g., piece captured)
+            if (Chess::WHITE_PLAYER == current_game->getCurrentTurn())
+            {
+                appendToNextMessage("White king is in check!\n");
+            }
+            else
+            {
+                appendToNextMessage("Black king is in check!\n");
+            }
+        }
+    }
+
+    return;
+}
+
 void saveGame(void)
 {
    string file_name;
@@ -851,7 +1055,7 @@ int main()
             case 'N':
             case 'n':
             {
-               newEndGame(0);
+               newGame();
                clearScreen();
                printLogo();
                printSituation(*current_game);
