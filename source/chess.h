@@ -107,7 +107,10 @@ class Game : Chess
 public:
 	Game();
 	Game(int setup);
+	Game(const Game& g);
 	~Game();
+
+	Game& operator=(const Game& g);
 
 	void movePiece(Position present, Position future, Chess::EnPassant* S_enPassant, Chess::Castling* S_castling, Chess::Promotion* S_promotion);
 

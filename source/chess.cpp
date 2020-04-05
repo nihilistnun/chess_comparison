@@ -250,11 +250,38 @@ Game::Game(int setup)
 	m_bCastlingQueenSideAllowed[BLACK_PLAYER] = true;
 }
 
+Game::Game(const Game& g)
+{
+	m_CurrentTurn = g.m_CurrentTurn;
+	m_bGameFinished = g.m_bGameFinished;
+	m_undo = g.m_undo;
+	memcpy(board, g.board, sizeof(char) * 8 * 8);
+	m_bCastlingKingSideAllowed[WHITE_PLAYER] = g.m_bCastlingKingSideAllowed[WHITE_PLAYER];
+	m_bCastlingKingSideAllowed[BLACK_PLAYER] = g.m_bCastlingKingSideAllowed[BLACK_PLAYER];
+	m_bCastlingQueenSideAllowed[WHITE_PLAYER] = g.m_bCastlingQueenSideAllowed[WHITE_PLAYER];
+	m_bCastlingQueenSideAllowed[BLACK_PLAYER] = g.m_bCastlingQueenSideAllowed[BLACK_PLAYER];
+}
+
 Game::~Game()
 {
 	white_captured.clear();
 	black_captured.clear();
 	rounds.clear();
+}
+
+Game& Game::operator=(const Game& g)
+{
+	if (this == &g)
+		return *this;
+	m_CurrentTurn = g.m_CurrentTurn;
+	m_bGameFinished = g.m_bGameFinished;
+	m_undo = g.m_undo;
+	memcpy(board, g.board, sizeof(char) * 8 * 8);
+	m_bCastlingKingSideAllowed[WHITE_PLAYER] = g.m_bCastlingKingSideAllowed[WHITE_PLAYER];
+	m_bCastlingKingSideAllowed[BLACK_PLAYER] = g.m_bCastlingKingSideAllowed[BLACK_PLAYER];
+	m_bCastlingQueenSideAllowed[WHITE_PLAYER] = g.m_bCastlingQueenSideAllowed[WHITE_PLAYER];
+	m_bCastlingQueenSideAllowed[BLACK_PLAYER] = g.m_bCastlingQueenSideAllowed[BLACK_PLAYER];
+	return *this;
 }
 
 void Game::movePiece(Position present, Position future, Chess::EnPassant* S_enPassant, Chess::Castling* S_castling, Chess::Promotion* S_promotion)

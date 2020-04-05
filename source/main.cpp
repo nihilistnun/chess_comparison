@@ -658,13 +658,13 @@ void movePiece(void)
    return;
 }
 
-void movePiece(std::string move_from, std::string move_to)
+bool movePiece(std::string move_from, std::string move_to)
 {
     std::string to_record;
     if (move_from.length() > 2)
     {
         createNextMessage("You should type only two characters (column and row)\n");
-        return;
+        return false;
     }
 
     Chess::Position present;
@@ -683,13 +683,13 @@ void movePiece(std::string move_from, std::string move_to)
     if (present.iColumn < 'A' || present.iColumn > 'H')
     {
         createNextMessage("Invalid column.\n");
-        return;
+        return false;
     }
 
     if (present.iRow < '0' || present.iRow > '8')
     {
         createNextMessage("Invalid row.\n");
-        return;
+        return false;
     }
 
     // Put in the string to be logged
@@ -709,7 +709,7 @@ void movePiece(std::string move_from, std::string move_to)
     if (0x20 == chPiece)
     {
         createNextMessage("You picked an EMPTY square.\n");
-        return;
+        return false;
     }
 
     if (Chess::WHITE_PIECE == current_game->getCurrentTurn())
@@ -717,7 +717,7 @@ void movePiece(std::string move_from, std::string move_to)
         if (false == Chess::isWhitePiece(chPiece))
         {
             createNextMessage("It is WHITE's turn and you picked a BLACK piece\n");
-            return;
+            return false;
         }
     }
     else
@@ -725,7 +725,7 @@ void movePiece(std::string move_from, std::string move_to)
         if (false == Chess::isBlackPiece(chPiece))
         {
             createNextMessage("It is BLACK's turn and you picked a WHITE piece\n");
-            return;
+            return false;
         }
     }
 
@@ -735,7 +735,7 @@ void movePiece(std::string move_from, std::string move_to)
     if (move_to.length() > 2)
     {
         createNextMessage("You should type only two characters (column and row)\n");
-        return;
+        return false;
     }
 
     // ---------------------------------------------------
@@ -753,13 +753,13 @@ void movePiece(std::string move_from, std::string move_to)
     if (future.iColumn < 'A' || future.iColumn > 'H')
     {
         createNextMessage("Invalid column.\n");
-        return;
+        return false;
     }
 
     if (future.iRow < '0' || future.iRow > '8')
     {
         createNextMessage("Invalid row.\n");
-        return;
+        return false;
     }
 
     // Put in the string to be logged
@@ -776,7 +776,7 @@ void movePiece(std::string move_from, std::string move_to)
     if (future.iRow == present.iRow && future.iColumn == present.iColumn)
     {
         createNextMessage("[Invalid] You picked the same square!\n");
-        return;
+        return false;
     }
 
     // Is that move allowed?
@@ -787,7 +787,7 @@ void movePiece(std::string move_from, std::string move_to)
     if (false == isMoveValid(present, future, &S_enPassant, &S_castling, &S_promotion))
     {
         createNextMessage("[Invalid] Piece can not move to that square!\n");
-        return;
+        return false;
     }
 
     // ---------------------------------------------------
@@ -859,7 +859,7 @@ void movePiece(std::string move_from, std::string move_to)
         }
     }
 
-    return;
+    return true;
 }
 
 void saveGame(void)
