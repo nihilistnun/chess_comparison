@@ -107,10 +107,10 @@ class Game : Chess
 public:
 	Game();
 	Game(int setup);
-	Game(const Game& g);
+	Game(const Game& g);//copy constructor
 	~Game();
 
-	Game& operator=(const Game& g);
+	Game& operator=(const Game& g);//assignment operator
 
 	void movePiece(Position present, Position future, Chess::EnPassant* S_enPassant, Chess::Castling* S_castling, Chess::Promotion* S_promotion);
 
@@ -175,6 +175,12 @@ public:
 	// Save the captured pieces
 	std::vector<char> white_captured;
 	std::vector<char> black_captured;
+
+	//functions for algorithm play
+	//evaluation value of the board
+	int evaluate() const;
+	//piece value of each piece type
+	int pieceValue(int row, int col) const;
 
 private:
 

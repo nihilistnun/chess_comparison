@@ -37,7 +37,7 @@ void printLogo(void)
 
 void printMenu(void)
 {
-   cout << "Commands: (N)ew game\t(M)ove \t(U)ndo \t(S)ave \t(L)oad \t(Q)uit \n";
+   cout << "Commands: (N)ew endgame\t(M)ove \t(Q)uit \n";
 }
 
 void printMessage(void)
