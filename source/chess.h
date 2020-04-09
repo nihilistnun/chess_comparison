@@ -134,6 +134,9 @@ public:
 
 	bool isPathFree(Position startingPos, Position finishingPos, int iDirection);
 
+	//no print version of is path free
+	bool isPathFreeNP(Position startingPos, Position finishingPos, int iDirection);
+
 	bool canBeBlocked(Position startingPos, Position finishinPos, int iDirection);
 
 	bool isCheckMate();

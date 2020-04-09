@@ -155,16 +155,14 @@
   <ItemGroup>
     <ClCompile Include="chess.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="minimax.cpp" />
-    <ClCompile Include="montecarlo.cpp" />
+    <ClCompile Include="algorithms.cpp" />
     <ClCompile Include="user_interface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chess.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="includes.h" />
-    <ClInclude Include="minimax.h" />
-    <ClInclude Include="montecarlo.h" />
+    <ClInclude Include="algorithms.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="user_interface.h" />
   </ItemGroup>

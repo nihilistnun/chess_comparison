@@ -1436,6 +1436,166 @@ bool Game::isPathFree(Position startingPos, Position finishingPos, int iDirectio
 	return bFree;
 }
 
+bool Game::isPathFreeNP(Position startingPos, Position finishingPos, int iDirection)
+{
+	bool bFree = false;
+
+	switch (iDirection)
+	{
+	case Chess::HORIZONTAL:
+	{
+		// If it is a horizontal move, we can assume the startingPos.iRow == finishingPos.iRow
+		// If the piece wants to move from column 0 to column 7, we must check if columns 1-6 are free
+		if (startingPos.iColumn == finishingPos.iColumn)
+		{
+		}
+
+		// Moving to the right
+		else if (startingPos.iColumn < finishingPos.iColumn)
+		{
+			// Settting bFree as initially true, only inside the cases, guarantees that the path is checked
+			bFree = true;
+
+			for (int i = startingPos.iColumn + 1; i < finishingPos.iColumn; i++)
+			{
+				if (isSquareOccupied(startingPos.iRow, i))
+				{
+					bFree = false;
+				}
+			}
+		}
+
+		// Moving to the left
+		else //if (startingPos.iColumn > finishingPos.iColumn)
+		{
+			// Settting bFree as initially true, only inside the cases, guarantees that the path is checked
+			bFree = true;
+
+			for (int i = startingPos.iColumn - 1; i > finishingPos.iColumn; i--)
+			{
+				if (isSquareOccupied(startingPos.iRow, i))
+				{
+					bFree = false;
+				}
+			}
+		}
+	}
+	break;
+
+	case Chess::VERTICAL:
+	{
+		// If it is a vertical move, we can assume the startingPos.iColumn == finishingPos.iColumn
+		// If the piece wants to move from column 0 to column 7, we must check if columns 1-6 are free
+		if (startingPos.iRow == finishingPos.iRow)
+		{
+			throw("Error. Movement is vertical but row is the same");
+		}
+
+		// Moving up
+		else if (startingPos.iRow < finishingPos.iRow)
+		{
+			// Settting bFree as initially true, only inside the cases, guarantees that the path is checked
+			bFree = true;
+
+			for (int i = startingPos.iRow + 1; i < finishingPos.iRow; i++)
+			{
+				if (isSquareOccupied(i, startingPos.iColumn))
+				{
+					bFree = false;
+				}
+			}
+		}
+
+		// Moving down
+		else //if (startingPos.iColumn > finishingPos.iRow)
+		{
+			// Settting bFree as initially true, only inside the cases, guarantees that the path is checked
+			bFree = true;
+
+			for (int i = startingPos.iRow - 1; i > finishingPos.iRow; i--)
+			{
+				if (isSquareOccupied(i, startingPos.iColumn))
+				{
+					bFree = false;
+				}
+			}
+		}
+	}
+	break;
+
+	case Chess::DIAGONAL:
+	{
+		// Moving up and right
+		if ((finishingPos.iRow > startingPos.iRow) && (finishingPos.iColumn > startingPos.iColumn))
+		{
+			// Settting bFree as initially true, only inside the cases, guarantees that the path is checked
+			bFree = true;
+
+			for (int i = 1; i < abs(finishingPos.iRow - startingPos.iRow); i++)
+			{
+				if (isSquareOccupied(startingPos.iRow + i, startingPos.iColumn + i))
+				{
+					bFree = false;
+				}
+			}
+		}
+
+		// Moving up and left
+		else if ((finishingPos.iRow > startingPos.iRow) && (finishingPos.iColumn < startingPos.iColumn))
+		{
+			// Settting bFree as initially true, only inside the cases, guarantees that the path is checked
+			bFree = true;
+
+			for (int i = 1; i < abs(finishingPos.iRow - startingPos.iRow); i++)
+			{
+				if (isSquareOccupied(startingPos.iRow + i, startingPos.iColumn - i))
+				{
+					bFree = false;
+				}
+			}
+		}
+
+		// Moving down and right
+		else if ((finishingPos.iRow < startingPos.iRow) && (finishingPos.iColumn > startingPos.iColumn))
+		{
+			// Settting bFree as initially true, only inside the cases, guarantees that the path is checked
+			bFree = true;
+
+			for (int i = 1; i < abs(finishingPos.iRow - startingPos.iRow); i++)
+			{
+				if (isSquareOccupied(startingPos.iRow - i, startingPos.iColumn + i))
+				{
+					bFree = false;
+				}
+			}
+		}
+
+		// Moving down and left
+		else if ((finishingPos.iRow < startingPos.iRow) && (finishingPos.iColumn < startingPos.iColumn))
+		{
+			// Settting bFree as initially true, only inside the cases, guarantees that the path is checked
+			bFree = true;
+
+			for (int i = 1; i < abs(finishingPos.iRow - startingPos.iRow); i++)
+			{
+				if (isSquareOccupied(startingPos.iRow - i, startingPos.iColumn - i))
+				{
+					bFree = false;
+				}
+			}
+		}
+
+		else
+		{
+			throw("Error. Diagonal move not allowed");
+		}
+	}
+	break;
+	}
+
+	return bFree;
+}
+
 bool Game::canBeBlocked(Position startingPos, Position finishingPos, int iDirection)
 {
 	bool bBlocked = false;
@@ -1918,6 +2078,9 @@ void Game::deleteLastMove(void)
 	}
 }
 
+//my functions
+
+//returns the value of the board positive in favor of white
 int Game::evaluate() const
 {
 	int sum = 0;
