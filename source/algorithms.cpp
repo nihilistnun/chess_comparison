@@ -34,11 +34,16 @@ void Algorithms::load()
 
 int Algorithms::minimaxSearch(bool maximizer, int depth, int alpha, int beta)
 {
-	if (depth >= MAX_DEPTH) {
+	if (depth >= MAX_DEPTH || current_game->isCheckMate()) {
 		return current_game->evaluate();
 	}
 	save();
 	vector<Move> validMoves = eachMove(player(maximizer));
+	if (validMoves.size() == 0) {
+		//stalemate
+		saves->pop();
+		return current_game->evaluate();
+	}
 	if (maximizer) {
 		//white's turn (maximzie the value)
 		//for each move

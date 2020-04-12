@@ -14,7 +14,7 @@ public:
 		Chess::Promotion S_promotion;
 	};
 
-	const int MAX_DEPTH = 4;
+	const int MAX_DEPTH = 1;
 	Chess::Position bestMoveOrigin = { 0,0 };
 	Chess::Position bestMoveDestin = { 0,0 };
 	//game pointer
