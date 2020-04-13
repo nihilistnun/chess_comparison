@@ -2048,7 +2048,9 @@ void Game::logMove(std::string& to_record)
 string Game::getLastMove(void)
 {
 	string last_move;
-
+	//if there is no previous round
+	if (rounds.size() < 1)
+		return NULL;
 	// Who did the last move?
 	if (BLACK_PLAYER == getCurrentTurn())
 	{
@@ -2092,7 +2094,7 @@ int Game::evaluate() const
 	int sum = 0;
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
-			sum += pieceValue(i,j);
+			sum += pieceValue(i, j);
 		}
 	}
 	return sum;

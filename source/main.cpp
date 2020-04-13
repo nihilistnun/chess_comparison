@@ -76,6 +76,10 @@ bool isMoveValid(Chess::Position present, Chess::Position future, Chess::EnPassa
 		else if ((Chess::isWhitePiece(chPiece) && 4 == present.iRow && 5 == future.iRow && 1 == abs(future.iColumn - present.iColumn)) ||
 			(Chess::isBlackPiece(chPiece) && 3 == present.iRow && 2 == future.iRow && 1 == abs(future.iColumn - present.iColumn)))
 		{
+			if (current_game->rounds.size() < 1) {
+				//necessary for custom endgames where there is no previous round
+				return false;
+			}
 			// It is only valid if last move of the opponent was a double move forward by a pawn on a adjacent column
 			string last_move = current_game->getLastMove();
 
@@ -885,6 +889,10 @@ bool isMoveValidNP(Chess::Position present, Chess::Position future, Chess::EnPas
 			(Chess::isBlackPiece(chPiece) && 3 == present.iRow && 2 == future.iRow && 1 == abs(future.iColumn - present.iColumn)))
 		{
 			// It is only valid if last move of the opponent was a double move forward by a pawn on a adjacent column
+			if (current_game->rounds.size() < 1) {
+				//necessary for custom endgames where there is no previous round
+				return false;
+			}
 			string last_move = current_game->getLastMove();
 
 			// Parse the line
