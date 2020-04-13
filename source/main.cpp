@@ -1050,82 +1050,82 @@ bool isMoveValidNP(Chess::Position present, Chess::Position future, Chess::EnPas
 			bValid = true;
 		}
 
-		// Castling
-		else if ((future.iRow == present.iRow) && (2 == abs(future.iColumn - present.iColumn)))
-		{
-			// Castling is only allowed in these circunstances:
+		// Castling is disabled
+		//else if ((future.iRow == present.iRow) && (2 == abs(future.iColumn - present.iColumn)))
+		//{
+		//	// Castling is only allowed in these circunstances:
 
-			// 1. King is not in check
-			if (true == current_game->playerKingInCheck())
-			{
-				return false;
-			}
+		//	// 1. King is not in check
+		//	if (true == current_game->playerKingInCheck())
+		//	{
+		//		return false;
+		//	}
 
-			// 2. No pieces in between the king and the rook
-			if (false == current_game->isPathFreeNP(present, future, Chess::HORIZONTAL))
-			{
-				return false;
-			}
+		//	// 2. No pieces in between the king and the rook
+		//	if (false == current_game->isPathFreeNP(present, future, Chess::HORIZONTAL))
+		//	{
+		//		return false;
+		//	}
 
-			// 3. King and rook must not have moved yet;
-			// 4. King must not pass through a square that is attacked by an enemy piece
-			if (future.iColumn > present.iColumn)
-			{
-				// if future.iColumn is greather, it means king side
-				if (false == current_game->castlingAllowed(Chess::Side::KING_SIDE, Chess::getPieceColor(chPiece)))
-				{
-					return false;
-				}
-				else
-				{
-					// Check if the square that the king skips is not under attack
-					Chess::UnderAttack square_skipped = current_game->isUnderAttack(present.iRow, present.iColumn + 1, current_game->getCurrentTurn());
-					if (false == square_skipped.bUnderAttack)
-					{
-						// Fill the S_castling structure
-						S_castling->bApplied = true;
+		//	// 3. King and rook must not have moved yet;
+		//	// 4. King must not pass through a square that is attacked by an enemy piece
+		//	if (future.iColumn > present.iColumn)
+		//	{
+		//		// if future.iColumn is greather, it means king side
+		//		if (false == current_game->castlingAllowed(Chess::Side::KING_SIDE, Chess::getPieceColor(chPiece)))
+		//		{
+		//			return false;
+		//		}
+		//		else
+		//		{
+		//			// Check if the square that the king skips is not under attack
+		//			Chess::UnderAttack square_skipped = current_game->isUnderAttack(present.iRow, present.iColumn + 1, current_game->getCurrentTurn());
+		//			if (false == square_skipped.bUnderAttack)
+		//			{
+		//				// Fill the S_castling structure
+		//				S_castling->bApplied = true;
 
-						// Present position of the rook
-						S_castling->rook_before.iRow = present.iRow;
-						S_castling->rook_before.iColumn = present.iColumn + 3;
+		//				// Present position of the rook
+		//				S_castling->rook_before.iRow = present.iRow;
+		//				S_castling->rook_before.iColumn = present.iColumn + 3;
 
-						// Future position of the rook
-						S_castling->rook_after.iRow = future.iRow;
-						S_castling->rook_after.iColumn = present.iColumn + 1; // future.iColumn -1
+		//				// Future position of the rook
+		//				S_castling->rook_after.iRow = future.iRow;
+		//				S_castling->rook_after.iColumn = present.iColumn + 1; // future.iColumn -1
 
-						bValid = true;
-					}
-				}
-			}
-			else //if (future.iColumn < present.iColumn)
-			{
-				// if present.iColumn is greather, it means queen side
-				if (false == current_game->castlingAllowed(Chess::Side::QUEEN_SIDE, Chess::getPieceColor(chPiece)))
-				{
-					return false;
-				}
-				else
-				{
-					// Check if the square that the king skips is not attacked
-					Chess::UnderAttack square_skipped = current_game->isUnderAttack(present.iRow, present.iColumn - 1, current_game->getCurrentTurn());
-					if (false == square_skipped.bUnderAttack)
-					{
-						// Fill the S_castling structure
-						S_castling->bApplied = true;
+		//				bValid = true;
+		//			}
+		//		}
+		//	}
+		//	else //if (future.iColumn < present.iColumn)
+		//	{
+		//		// if present.iColumn is greather, it means queen side
+		//		if (false == current_game->castlingAllowed(Chess::Side::QUEEN_SIDE, Chess::getPieceColor(chPiece)))
+		//		{
+		//			return false;
+		//		}
+		//		else
+		//		{
+		//			// Check if the square that the king skips is not attacked
+		//			Chess::UnderAttack square_skipped = current_game->isUnderAttack(present.iRow, present.iColumn - 1, current_game->getCurrentTurn());
+		//			if (false == square_skipped.bUnderAttack)
+		//			{
+		//				// Fill the S_castling structure
+		//				S_castling->bApplied = true;
 
-						// Present position of the rook
-						S_castling->rook_before.iRow = present.iRow;
-						S_castling->rook_before.iColumn = present.iColumn - 4;
+		//				// Present position of the rook
+		//				S_castling->rook_before.iRow = present.iRow;
+		//				S_castling->rook_before.iColumn = present.iColumn - 4;
 
-						// Future position of the rook
-						S_castling->rook_after.iRow = future.iRow;
-						S_castling->rook_after.iColumn = present.iColumn - 1; // future.iColumn +1
+		//				// Future position of the rook
+		//				S_castling->rook_after.iRow = future.iRow;
+		//				S_castling->rook_after.iColumn = present.iColumn - 1; // future.iColumn +1
 
-						bValid = true;
-					}
-				}
-			}
-		}
+		//				bValid = true;
+		//			}
+		//		}
+		//	}
+		//}
 	}
 	break;
 
