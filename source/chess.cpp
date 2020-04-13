@@ -154,7 +154,7 @@ Game::Game(int setup)
 		{
 		{ 0x20, 0x20, 0x20, 0x20, 'K', 0x20, 'B', 0x20 },
 		{ 0x20, 0x20, 0x20, 0x20, 0x20, 'P', 'p', 0x20 },
-		{ 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 'p'},
+		{ 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 'p' },
 		{ 0x20, 0x20, 0x20, 0x20, 'P', 0x20, 0x20, 0x20 },
 		{ 'p', 0x20, 0x20, 'P', 'p', 0x20, 0x20, 0x20 },
 		{ 0x20, 0x20, 'P', 'p', 0x20, 'k', 0x20, 0x20 },
@@ -261,6 +261,9 @@ Game::Game(const Game& g)
 	m_bCastlingKingSideAllowed[BLACK_PLAYER] = g.m_bCastlingKingSideAllowed[BLACK_PLAYER];
 	m_bCastlingQueenSideAllowed[WHITE_PLAYER] = g.m_bCastlingQueenSideAllowed[WHITE_PLAYER];
 	m_bCastlingQueenSideAllowed[BLACK_PLAYER] = g.m_bCastlingQueenSideAllowed[BLACK_PLAYER];
+	rounds = g.rounds;
+	white_captured = g.white_captured;
+	black_captured = g.black_captured;
 }
 
 Game::~Game()
@@ -282,6 +285,9 @@ Game& Game::operator=(const Game& g)
 	m_bCastlingKingSideAllowed[BLACK_PLAYER] = g.m_bCastlingKingSideAllowed[BLACK_PLAYER];
 	m_bCastlingQueenSideAllowed[WHITE_PLAYER] = g.m_bCastlingQueenSideAllowed[WHITE_PLAYER];
 	m_bCastlingQueenSideAllowed[BLACK_PLAYER] = g.m_bCastlingQueenSideAllowed[BLACK_PLAYER];
+	rounds = g.rounds;
+	white_captured = g.white_captured;
+	black_captured = g.black_captured;
 	return *this;
 }
 

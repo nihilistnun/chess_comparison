@@ -14,9 +14,8 @@ public:
 		Chess::Promotion S_promotion;
 	};
 
-	const int MAX_DEPTH = 1;
-	Chess::Position bestMoveOrigin = { 0,0 };
-	Chess::Position bestMoveDestin = { 0,0 };
+	const int MAX_DEPTH = 5;
+	Move bestMove;
 	//game pointer
 	Game* current_game = nullptr;
 	//each move function pointer
@@ -26,6 +25,8 @@ public:
 
 	Algorithms(Game* current_game, vector<Move>(*eachMove)(Chess::Player), bool (*movePiece)(Move));
 	~Algorithms();
+
+	bool doBestMove();
 
 	Chess::Player player(const bool maximizer);
 

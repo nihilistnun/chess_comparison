@@ -17,6 +17,11 @@ Algorithms::~Algorithms()
 	delete saves;
 }
 
+bool Algorithms::doBestMove()
+{
+	return movePiece(bestMove);
+}
+
 Chess::Player Algorithms::player(const bool maximizer)
 {
 	return maximizer ? Chess::WHITE_PLAYER : Chess::BLACK_PLAYER;
@@ -34,16 +39,17 @@ void Algorithms::load()
 
 int Algorithms::minimaxSearch(bool maximizer, int depth, int alpha, int beta)
 {
-	if (depth >= MAX_DEPTH || current_game->isCheckMate()) {
+	if (depth >= MAX_DEPTH) {
 		return current_game->evaluate();
 	}
-	save();
+	if (current_game->isCheckMate()) {
+		Chess::Position king = current_game->findKing(current_game->getCurrentTurn());
+		return current_game->evaluate() - current_game->pieceValue(king.iRow, king.iColumn);
+	}
 	vector<Move> validMoves = eachMove(player(maximizer));
-	if (validMoves.size() == 0) {
-		//stalemate
-		saves->pop();
-		return current_game->evaluate();
-	}
+	if (validMoves.size() == 0)//stalemate
+		return 0;
+	save();
 	if (maximizer) {
 		//white's turn (maximzie the value)
 		//for each move
@@ -52,8 +58,13 @@ int Algorithms::minimaxSearch(bool maximizer, int depth, int alpha, int beta)
 			//cout << '(' << char('A' + move.present.iColumn) << move.present.iRow + 1
 			//	<< '-' << char('A' + move.future.iColumn) << move.future.iRow + 1 << ')';
 			movePiece(move);
-			alpha = max(alpha, minimaxSearch(!maximizer, ++depth, alpha, beta));
+			int searchValue = minimaxSearch(!maximizer, ++depth, alpha, beta);
 			depth--;
+			if (searchValue > alpha) {
+				alpha = searchValue;
+				if (depth == 0)
+					bestMove = move;
+			}
 			//reset game to previous depth after each move
 			load();
 			if (alpha >= beta) {
@@ -73,8 +84,13 @@ int Algorithms::minimaxSearch(bool maximizer, int depth, int alpha, int beta)
 			//cout << '(' << char('A' + move.present.iColumn) << move.present.iRow + 1
 			//	<< '-' << char('A' + move.future.iColumn) << move.future.iRow + 1 << ')';
 			movePiece(move);
-			beta = min(beta, minimaxSearch(!maximizer, ++depth, alpha, beta));
+			int searchValue = minimaxSearch(!maximizer, ++depth, alpha, beta);
 			depth--;
+			if (searchValue < beta) {
+				beta = searchValue;
+				if (depth == 0)
+					bestMove = move;
+			}
 			//reset game to previous depth after each move
 			load();
 			if (alpha >= beta) {

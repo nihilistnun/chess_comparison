@@ -822,177 +822,6 @@ void newEndGame(int setup)
 	current_game = new Game(setup);
 }
 
-//auto promotes to queen
-bool movePiece(Algorithms::Move move)
-{
-	std::string to_record;
-	// ---------------------------------------------------
-	// Did the user pick a valid piece?
-	// Must check if:
-	// - It's inside the board (A1-H8)
-	// - There is a piece in the square
-	// - The piece is consistent with the player's turn
-	// ---------------------------------------------------
-	move.present.iColumn = toupper(move.present.iColumn + 'A');
-	move.present.iRow++;
-
-	if (move.present.iColumn < 'A' || move.present.iColumn > 'H')
-	{
-		return false;
-	}
-
-	if (move.present.iRow < 0 || move.present.iRow > 8)
-	{
-		return false;
-	}
-
-	// Put in the string to be logged
-	to_record += move.present.iColumn;
-	to_record += move.present.iRow+'0';
-	to_record += "-";
-
-	// Convert column from ['A'-'H'] to [0x00-0x07]
-	move.present.iColumn = move.present.iColumn - 'A';
-
-	// Convert row from ['1'-'8'] to [0x00-0x07]
-	move.present.iRow = move.present.iRow--;
-
-	char chPiece = current_game->getPieceAtPosition(move.present.iRow, move.present.iColumn);
-	//cout << "Piece is " << char(chPiece) << "\n";
-
-	if (0x20 == chPiece)
-	{
-		return false;
-	}
-
-	if (Chess::WHITE_PIECE == current_game->getCurrentTurn())
-	{
-		if (false == Chess::isWhitePiece(chPiece))
-		{
-			return false;
-		}
-	}
-	else
-	{
-		if (false == Chess::isBlackPiece(chPiece))
-		{
-			return false;
-		}
-	}
-	// ---------------------------------------------------
-	// Did the user pick a valid house to move?
-	// Must check if:
-	// - It's inside the board (A1-H8)
-	// - The move is valid
-	// ---------------------------------------------------
-	move.future.iColumn = toupper(move.future.iColumn + 'A');
-	move.future.iRow++;
-
-	if (move.future.iColumn < 'A' || move.future.iColumn > 'H')
-	{
-		return false;
-	}
-
-	if (move.future.iRow < 0 || move.future.iRow > 8)
-	{
-		return false;
-	}
-
-	// Put in the string to be logged
-	to_record += move.future.iColumn;
-	to_record += move.future.iRow+'0';
-
-	// Convert columns from ['A'-'H'] to [0x00-0x07]
-	move.future.iColumn = move.future.iColumn - 'A';
-
-	// Convert row from ['1'-'8'] to [0x00-0x07]
-	move.future.iRow = move.future.iRow--;
-
-	// Check if it is not the exact same square
-	if (move.future.iRow == move.present.iRow && move.future.iColumn == move.present.iColumn)
-	{
-		return false;
-	}
-
-	//redundant check, can be REMOVED
-	if (false == isMoveValid(move.present, move.future, &move.S_enPassant, &move.S_castling, &move.S_promotion))
-	{
-		return false;
-	}
-
-	// ---------------------------------------------------
-	// Promotion: user most choose a piece to
-	// replace the pawn
-	// Promotion is defaulted to queen for algorithms
-	// ---------------------------------------------------
-	if (move.S_promotion.bApplied == true)
-	{
-		char chPromoted = 'Q';
-
-		move.S_promotion.chBefore = current_game->getPieceAtPosition(move.present.iRow, move.present.iColumn);
-
-		if (Chess::WHITE_PLAYER == current_game->getCurrentTurn())
-		{
-			move.S_promotion.chAfter = toupper(chPromoted);
-		}
-		else
-		{
-			move.S_promotion.chAfter = tolower(chPromoted);
-		}
-
-		to_record += '=';
-		to_record += toupper(chPromoted); // always log with a capital letter
-	}
-
-	// ---------------------------------------------------
-	// Log the move: do it prior to making the move
-	// because we need the getCurrentTurn()
-	// ---------------------------------------------------
-	current_game->logMove(to_record);
-
-	// ---------------------------------------------------
-	// Make the move
-	// ---------------------------------------------------
-	makeTheMove(move.present, move.future, &move.S_enPassant, &move.S_castling, &move.S_promotion);
-
-	// ---------------------------------------------------------------
-	// Check if this move we just did put the oponent's king in check
-	// Keep in mind that player turn has already changed
-	// ---------------------------------------------------------------
-	if (true == current_game->playerKingInCheck())
-	{
-		if (true == current_game->isCheckMate())
-		{
-			if (Chess::WHITE_PLAYER == current_game->getCurrentTurn())
-			{
-				appendToNextMessage("Checkmate! Black wins the game!\n");
-			}
-			else
-			{
-				appendToNextMessage("Checkmate! White wins the game!\n");
-			}
-		}
-		else
-		{
-			// Add to the string with '+=' because it's possible that
-			// there is already one message (e.g., piece captured)
-			if (Chess::WHITE_PLAYER == current_game->getCurrentTurn())
-			{
-				//appendToNextMessage("White king is in check!\n");
-			}
-			else
-			{
-				//appendToNextMessage("Black king is in check!\n");
-			}
-		}
-	}
-
-	printLogo();
-	printSituation(*current_game);
-	printBoard(*current_game);
-	return true;
-}
-
 //no print is move valid checker
 bool isMoveValidNP(Chess::Position present, Chess::Position future, Chess::EnPassant* S_enPassant, Chess::Castling* S_castling, Chess::Promotion* S_promotion)
 {
@@ -1325,8 +1154,178 @@ bool isMoveValidNP(Chess::Position present, Chess::Position future, Chess::EnPas
 	{
 		return false;
 	}
-
 	return bValid;
+}
+
+//auto promotes to queen
+bool movePiece(Algorithms::Move move)
+{
+	std::string to_record;
+	// ---------------------------------------------------
+	// Did the user pick a valid piece?
+	// Must check if:
+	// - It's inside the board (A1-H8)
+	// - There is a piece in the square
+	// - The piece is consistent with the player's turn
+	// ---------------------------------------------------
+	move.present.iColumn = toupper(move.present.iColumn + 'A');
+	move.present.iRow++;
+
+	if (move.present.iColumn < 'A' || move.present.iColumn > 'H')
+	{
+		return false;
+	}
+
+	if (move.present.iRow < 0 || move.present.iRow > 8)
+	{
+		return false;
+	}
+
+	// Put in the string to be logged
+	to_record += move.present.iColumn;
+	to_record += move.present.iRow + '0';
+	to_record += "-";
+
+	// Convert column from ['A'-'H'] to [0x00-0x07]
+	move.present.iColumn = move.present.iColumn - 'A';
+
+	// Convert row from ['1'-'8'] to [0x00-0x07]
+	move.present.iRow = move.present.iRow--;
+
+	char chPiece = current_game->getPieceAtPosition(move.present.iRow, move.present.iColumn);
+	//cout << "Piece is " << char(chPiece) << "\n";
+
+	if (0x20 == chPiece)
+	{
+		return false;
+	}
+
+	if (Chess::WHITE_PIECE == current_game->getCurrentTurn())
+	{
+		if (false == Chess::isWhitePiece(chPiece))
+		{
+			return false;
+		}
+	}
+	else
+	{
+		if (false == Chess::isBlackPiece(chPiece))
+		{
+			return false;
+		}
+	}
+	// ---------------------------------------------------
+	// Did the user pick a valid house to move?
+	// Must check if:
+	// - It's inside the board (A1-H8)
+	// - The move is valid
+	// ---------------------------------------------------
+	move.future.iColumn = toupper(move.future.iColumn + 'A');
+	move.future.iRow++;
+
+	if (move.future.iColumn < 'A' || move.future.iColumn > 'H')
+	{
+		return false;
+	}
+
+	if (move.future.iRow < 0 || move.future.iRow > 8)
+	{
+		return false;
+	}
+
+	// Put in the string to be logged
+	to_record += move.future.iColumn;
+	to_record += move.future.iRow + '0';
+
+	// Convert columns from ['A'-'H'] to [0x00-0x07]
+	move.future.iColumn = move.future.iColumn - 'A';
+
+	// Convert row from ['1'-'8'] to [0x00-0x07]
+	move.future.iRow = move.future.iRow--;
+
+	// Check if it is not the exact same square
+	if (move.future.iRow == move.present.iRow && move.future.iColumn == move.present.iColumn)
+	{
+		return false;
+	}
+
+	//redundant check, can be REMOVED
+	if (false == isMoveValidNP(move.present, move.future, &move.S_enPassant, &move.S_castling, &move.S_promotion))
+	{
+		return false;
+	}
+
+	// ---------------------------------------------------
+	// Promotion: user most choose a piece to
+	// replace the pawn
+	// Promotion is defaulted to queen for algorithms
+	// ---------------------------------------------------
+	if (move.S_promotion.bApplied == true)
+	{
+		char chPromoted = 'Q';
+
+		move.S_promotion.chBefore = current_game->getPieceAtPosition(move.present.iRow, move.present.iColumn);
+
+		if (Chess::WHITE_PLAYER == current_game->getCurrentTurn())
+		{
+			move.S_promotion.chAfter = toupper(chPromoted);
+		}
+		else
+		{
+			move.S_promotion.chAfter = tolower(chPromoted);
+		}
+
+		to_record += '=';
+		to_record += toupper(chPromoted); // always log with a capital letter
+	}
+
+	// ---------------------------------------------------
+	// Log the move: do it prior to making the move
+	// because we need the getCurrentTurn()
+	// ---------------------------------------------------
+	current_game->logMove(to_record);
+
+	// ---------------------------------------------------
+	// Make the move
+	// ---------------------------------------------------
+	makeTheMove(move.present, move.future, &move.S_enPassant, &move.S_castling, &move.S_promotion);
+
+	// ---------------------------------------------------------------
+	// Check if this move we just did put the oponent's king in check
+	// Keep in mind that player turn has already changed
+	// ---------------------------------------------------------------
+	if (true == current_game->playerKingInCheck())
+	{
+		if (true == current_game->isCheckMate())
+		{
+			if (Chess::WHITE_PLAYER == current_game->getCurrentTurn())
+			{
+				appendToNextMessage("Checkmate! Black wins the game!\n");
+			}
+			else
+			{
+				appendToNextMessage("Checkmate! White wins the game!\n");
+			}
+		}
+		else
+		{
+			// Add to the string with '+=' because it's possible that
+			// there is already one message (e.g., piece captured)
+			if (Chess::WHITE_PLAYER == current_game->getCurrentTurn())
+			{
+				//appendToNextMessage("White king is in check!\n");
+			}
+			else
+			{
+				//appendToNextMessage("Black king is in check!\n");
+			}
+		}
+	}
+
+	//printLogo();
+	//printSituation(*current_game);
+	//printBoard(*current_game);
+	return true;
 }
 
 //all valid moves for player
@@ -1474,16 +1473,44 @@ int main()
 					else
 					{
 						//clearScreen();
-						printLogo();
-						//do something
 						Algorithms algo(current_game, allValidMoves, movePiece);
-						cout << "Minimax Value: " << algo.minimaxSearch(current_game->getCurrentTurn() == Chess::WHITE_PLAYER) << "\n";
+						int value = algo.minimaxSearch(current_game->getCurrentTurn() == Chess::WHITE_PLAYER);
+						algo.doBestMove();
+						printLogo(); 
 						printSituation(*current_game);
 						printBoard(*current_game);
+						//do something
+						cout << "Minimax Value: " << value << "\n";
+						
 						//vector<Algorithms::Move> moves = allValidMoves(current_game->getCurrentTurn() == 0 ? Chess::WHITE_PLAYER : Chess::BLACK_PLAYER);
 						//for (const auto& i : moves)
 						//	cout << '(' << char('A' + i.present.iColumn) << i.present.iRow+1
 						//	<< '-' << char('A' + i.future.iColumn) << i.future.iRow+1 << ')';
+					}
+				}
+				else
+				{
+					cout << "No game running!\n";
+				}
+
+			}
+			break;
+
+			case 'P':
+			case 'p':
+			{
+				if (NULL != current_game)
+				{
+					if (current_game->isFinished())
+					{
+						cout << "This game has already finished!\n";
+					}
+					else
+					{
+						//clearScreen();
+						printLogo();
+						printSituation(*current_game);
+						printBoard(*current_game);
 					}
 				}
 				else
