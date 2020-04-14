@@ -184,7 +184,14 @@ public:
 	int evaluate() const;
 	//piece value of each piece type
 	int pieceValue(int row, int col) const;
+	//round tracker for fifty move rule
 
+	int fiftyMovesTracker;
+	//can the fifty move rule be applied
+	bool fiftyMoveRule() const;
+
+	void setStaleMate();
+	bool stalemate = false;
 private:
 
 	// Represent the pieces in the board

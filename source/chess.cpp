@@ -264,6 +264,7 @@ Game::Game(const Game& g)
 	rounds = g.rounds;
 	white_captured = g.white_captured;
 	black_captured = g.black_captured;
+	fiftyMovesTracker = g.fiftyMovesTracker;
 }
 
 Game::~Game()
@@ -288,20 +289,26 @@ Game& Game::operator=(const Game& g)
 	rounds = g.rounds;
 	white_captured = g.white_captured;
 	black_captured = g.black_captured;
+	fiftyMovesTracker = g.fiftyMovesTracker;
 	return *this;
 }
 
 void Game::movePiece(Position present, Position future, Chess::EnPassant* S_enPassant, Chess::Castling* S_castling, Chess::Promotion* S_promotion)
 {
+	fiftyMovesTracker++;
 	// Get the piece to be moved
 	char chPiece = getPieceAtPosition(present);
-
+	//the piece being moved is a pawn, reset fifty moves
+	if (chPiece == 'p' || chPiece == 'P')
+		fiftyMovesTracker = 0;
 	// Is the destination square occupied?
 	char chCapturedPiece = getPieceAtPosition(future);
 
 	// So, was a piece captured in this move?
 	if (0x20 != chCapturedPiece)
 	{
+		//a capture is made fifty moves reset
+		fiftyMovesTracker = 0;
 		if (WHITE_PIECE == getPieceColor(chCapturedPiece))
 		{
 			// A white piece was captured
@@ -2131,4 +2138,15 @@ int Game::pieceValue(int row, int col) const
 		break;
 	}
 	return value;
+}
+
+bool Game::fiftyMoveRule() const
+{
+	return fiftyMovesTracker >= 5;
+}
+
+void Game::setStaleMate()
+{
+	stalemate = true;
+	m_bGameFinished = true;
 }

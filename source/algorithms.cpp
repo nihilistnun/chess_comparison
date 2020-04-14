@@ -47,8 +47,11 @@ int Algorithms::minimaxSearch(bool maximizer, int depth, int alpha, int beta)
 		return current_game->evaluate() - current_game->pieceValue(king.iRow, king.iColumn);
 	}
 	vector<Move> validMoves = eachMove(player(maximizer));
-	if (validMoves.size() == 0)//stalemate
+	if (validMoves.size() == 0 || current_game->fiftyMoveRule()) {
+		//no more moves and not a checkmate or fifty move rule causes stalemate
+		current_game->setStaleMate();
 		return 0;
+	}
 	save();
 	if (maximizer) {
 		//white's turn (maximzie the value)

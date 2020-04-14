@@ -1504,31 +1504,6 @@ int main()
 			}
 			break;
 
-			case 'P':
-			case 'p':
-			{
-				if (NULL != current_game)
-				{
-					if (current_game->isFinished())
-					{
-						cout << "This game has already finished!\n";
-					}
-					else
-					{
-						//clearScreen();
-						printLogo();
-						printSituation(*current_game);
-						printBoard(*current_game);
-					}
-				}
-				else
-				{
-					cout << "No game running!\n";
-				}
-
-			}
-			break;
-
 			case 'Q':
 			case 'q':
 			{
