@@ -1,7 +1,4 @@
 ﻿  algorithms.cpp
-  chess.cpp
   main.cpp
-  user_interface.cpp
-C:\Users\Nick\source\repos\chess_comparison\source\user_interface.cpp(125,38): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   Generating Code...
   Chess_console.vcxproj -> C:\Users\Nick\Source\Repos\chess_comparison\source\x64\Debug\Chess_console.exe
