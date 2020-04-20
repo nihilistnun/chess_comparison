@@ -106,3 +106,36 @@ int Algorithms::minimaxSearch(bool maximizer, int depth, int alpha, int beta)
 		return beta;
 	}
 }
+
+Algorithms::Node Algorithms::monteCarloTreeSearch()
+{
+	save();
+	srand((unsigned)time(NULL));
+	//for x times build the tree
+	{
+		//initialize tree if doesnt exists
+		if (MCTree == nullptr)
+			MCTree = new Node(*current_game, eachMove);
+		//selection - select best child to explore
+		Node& leaf = *(MCTree->bestUCTChild());
+		//expansion - add new child node to selected child
+		Move randomMove = leaf.validMoves[rand()%leaf.validMoves.size];
+		movePiece(randomMove);
+		leaf = *(leaf.addChild(new Node(*current_game, eachMove)));
+		//simulation - expand the child node randomly till finished
+
+		while (leaf.result == -2) {
+
+		}
+		//backpropagation - back propagate result up the tree
+
+		//reset to original state
+		load();
+	}
+	saves->pop();
+	//do best move
+
+	return *MCTree;
+}
+
+

@@ -29,6 +29,7 @@ public:
 		int gamesWon;
 		int gamesLost;//to calculate games drawn
 		//functions
+		//node constructor
 		Node(Game& game, vector<Move>(*eachMove)(Chess::Player), Node* parent = nullptr) {
 			data = game;
 			validMoves = eachMove(static_cast<Chess::Player>(data.getCurrentTurn()));
@@ -46,8 +47,22 @@ public:
 				delete child;
 			}
 		}
-		void addChild(Node* node) {
+
+		Node& operator=(Node& n) {
+			depth = n.depth;
+			parent = n.parent;
+			children = n.children;
+			data = n.data;
+			validMoves = n.validMoves;
+			visitCount = n.visitCount;
+			gamesWon = n.gamesWon;
+			gamesLost = n.gamesLost;
+			return *this;
+		}
+
+		Node* addChild(Node* node) {
 			children.push_back(node);
+			return children[children.size - 1];
 		}
 		bool isLeaf() {
 			return children.size() == 0;
@@ -68,7 +83,7 @@ public:
 			return false;
 		}
 
-		//-1 for black win 0 for stalemate 1 for white win
+		//-1 for black win 0 for stalemate 1 for white win, -2 for not ended
 		int result() {
 			if (data.isCheckMate()) {
 				//checkmate on white's turn aka black win
@@ -79,6 +94,7 @@ public:
 			}
 			if (data.fiftyMoveRule() || validMoves.size() == 0)
 				return 0;
+			return -2;
 		}
 
 		void setRoot() {
@@ -97,9 +113,82 @@ public:
 				}
 			}
 		}
+
+		Move getLastMove() {
+			if (depth != 0) {
+				Move move;
+				data.parseMove(data.getLastMove(), &move.present, &move.future);
+				return move;
+			}
+			Chess::Position pos{ -1,-1 };
+			return Move{ pos,pos };
+		}
+		//recursive backpropagation
+		bool backpropagate(int result, bool white = true) {
+			if (result < -1 || result > 1)
+				return false;
+			visitCount++;
+			if (!white)
+				result *= -1;
+			gamesWon += result < 0 ? 0 : result;
+			gamesLost -= result > 0 ? 0 : result;
+			if (depth != 0)
+				return parent->backpropagate(result);
+			else
+				return true;
+		}
+
+		const float winRate() const {
+			if (visitCount == 0)
+				return 0.0f;
+			return gamesWon / visitCount;
+		}
+		const float loseRate() const {
+			if (visitCount == 0)
+				return 0.0f;
+			return gamesLost / visitCount;
+		}
+
+		const float drawRate() const {
+			if (visitCount == 0)
+				return 0.0f;
+			return (visitCount - gamesWon - gamesLost) / visitCount;
+		}
+
+		//returns the best winrate child node, nullptr if no child
+		Node* bestChild() {
+			if (children.size() == 0)
+				return nullptr;
+			Node* best = children[0];
+			for (auto& child : children) {
+				if (child->winRate() > best->winRate())
+					best = child;
+			}
+			return best;
+		}
+
+		float UCT() {
+			if (depth == 0)
+				return 0.0f;
+			//ucb1 formula
+			return winRate() + sqrt(2) * sqrt(log(parent->visitCount) / visitCount);
+		}
+
+		//recursively returns best UCT leaf node, nullptr if no child
+		Node* bestUCTChild() {
+			if (isLeaf())
+				return this;
+			Node* best = children[0];
+			for (auto& child : children) {
+				if (child->UCT() > best->UCT())
+					best = child;
+			}
+			return best->bestUCTChild();
+		}
 	};
 
 	const int MAX_DEPTH = 5;
+	const int TIME_LIMIT = 5;
 	Move bestMove;
 	//game pointer
 	Game* current_game = nullptr;
@@ -121,11 +210,12 @@ public:
 
 	int minimaxSearch(bool maximizer, int depth = 0, int alpha = std::numeric_limits<int>::min(), int beta = std::numeric_limits<int>::max());
 
-	void monteCarloTreeSearch();
+	Node monteCarloTreeSearch();
 
 private:
 	//original game copy to backup current state
 	Game game_copy = NULL;
 	//game copies to save and revert to at each depth
 	stack<Game>* saves;
+	Node* MCTree = nullptr;
 };
