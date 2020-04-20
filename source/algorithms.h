@@ -17,13 +17,14 @@ public:
 	//for mcts
 	struct Node {
 		//node vars
-		const int MAX_NODE_DEPTH = 3;
 		int depth;
 		Node* parent = nullptr;
+		//explored moves are represented in children
 		vector<Node*> children;
+		//unexplored moves are represented in validMoves
+		vector<Move> validMoves;
 		//game data
 		Game data;
-		vector<Move> validMoves;
 		//stats
 		int visitCount;
 		int gamesWon;
@@ -39,6 +40,9 @@ public:
 				this->parent = parent;
 				depth = parent->depth + 1;
 			}
+			visitCount = 0;
+			gamesWon = 0;
+			gamesLost = 0;
 		}
 		~Node() {
 			parent = nullptr;
@@ -62,22 +66,20 @@ public:
 
 		Node* addChild(Node* node) {
 			children.push_back(node);
-			return children[children.size - 1];
+			return children[children.size() - 1];
 		}
 		bool isLeaf() {
 			return children.size() == 0;
 		}
 		bool isTerminal() {
 			//max depth
-			if (depth >= MAX_NODE_DEPTH)
-				return true;
 			//check mate
 			if (data.isCheckMate())
 				return true;
 			//stalemate
 			if (data.fiftyMoveRule())
 				return true;
-			if (validMoves.size() == 0)
+			if (validMoves.size() == 0 && children.size() == 0)
 				return true;
 			//not terminal
 			return false;
@@ -123,7 +125,7 @@ public:
 			Chess::Position pos{ -1,-1 };
 			return Move{ pos,pos };
 		}
-		//recursive backpropagation
+		//recursive backpropagation in terms of white=true
 		bool backpropagate(int result, bool white = true) {
 			if (result < -1 || result > 1)
 				return false;
@@ -174,7 +176,7 @@ public:
 			return winRate() + sqrt(2) * sqrt(log(parent->visitCount) / visitCount);
 		}
 
-		//recursively returns best UCT leaf node, nullptr if no child
+		// returns best UCT  node of all explored leaf nodes, nullptr if no child
 		Node* bestUCTChild() {
 			if (isLeaf())
 				return this;
@@ -183,7 +185,20 @@ public:
 				if (child->UCT() > best->UCT())
 					best = child;
 			}
-			return best->bestUCTChild();
+			return best;
+		}
+
+		//returns and erases the valid move
+		Move popRandomValidMove() {
+			int randomIndex = rand() % validMoves.size();
+			Move randomMove = validMoves[randomIndex];
+			validMoves.erase(validMoves.begin() + randomIndex);
+			return randomMove;
+		}
+
+		//if there are possible children to consider exploring
+		bool hasPossibleChildren() {
+			return validMoves.size() > 0;
 		}
 	};
 
@@ -210,7 +225,8 @@ public:
 
 	int minimaxSearch(bool maximizer, int depth = 0, int alpha = std::numeric_limits<int>::min(), int beta = std::numeric_limits<int>::max());
 
-	Node monteCarloTreeSearch();
+	//returns true for success, false for terminal
+	bool monteCarloTreeSearch(bool white);
 
 private:
 	//original game copy to backup current state

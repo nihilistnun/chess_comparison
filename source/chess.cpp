@@ -2057,7 +2057,7 @@ string Game::getLastMove(void)
 	string last_move;
 	//if there is no previous round
 	if (rounds.size() < 1)
-		return NULL;
+		return "";
 	// Who did the last move?
 	if (BLACK_PLAYER == getCurrentTurn())
 	{
@@ -2142,7 +2142,7 @@ int Game::pieceValue(int row, int col) const
 
 bool Game::fiftyMoveRule() const
 {
-	return fiftyMovesTracker >= 5;
+	return fiftyMovesTracker >= 50;
 }
 
 void Game::setStaleMate()

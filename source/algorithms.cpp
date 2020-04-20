@@ -15,6 +15,7 @@ Algorithms::~Algorithms()
 	eachMove = nullptr;
 	movePiece = nullptr;
 	delete saves;
+	delete MCTree;
 }
 
 bool Algorithms::doBestMove()
@@ -107,35 +108,67 @@ int Algorithms::minimaxSearch(bool maximizer, int depth, int alpha, int beta)
 	}
 }
 
-Algorithms::Node Algorithms::monteCarloTreeSearch()
+bool Algorithms::monteCarloTreeSearch(bool white)
 {
 	save();
 	srand((unsigned)time(NULL));
+	//initialize tree if doesnt exists
+	if (MCTree == nullptr)
+		MCTree = new Node(*current_game, eachMove);
 	//for x times build the tree
+	for (int i = 0; i < 1000; i++)
 	{
-		//initialize tree if doesnt exists
-		if (MCTree == nullptr)
-			MCTree = new Node(*current_game, eachMove);
-		//selection - select best child to explore
-		Node& leaf = *(MCTree->bestUCTChild());
-		//expansion - add new child node to selected child
-		Move randomMove = leaf.validMoves[rand()%leaf.validMoves.size];
-		movePiece(randomMove);
-		leaf = *(leaf.addChild(new Node(*current_game, eachMove)));
+		//selection - select best child to explore including all valid moves
+		//should prioritize promosing moves or unexplroed moves to balance
+		Node* leaf = MCTree;
+		//check if node is already terminal
+		if (leaf->isTerminal())
+			return false;
+		if (i > 900)
+			i = i;
+		//if leaf has already explored all moves, pick the best result
+		while (!leaf->hasPossibleChildren() && leaf->children.size() > 0) {
+			leaf = leaf->bestUCTChild();
+		}
+		// expand if the leaf is not terminal
+		if (!leaf->isTerminal()) {
+			//expansion - add new child node to selected child
+			Move randomMove = leaf->popRandomValidMove();
+			movePiece(randomMove);
+			leaf = leaf->addChild(new Node(*current_game, eachMove, leaf));
+		}
 		//simulation - expand the child node randomly till finished
-
-		while (leaf.result == -2) {
-
+		int result = -2;
+		bool playerIsWhite = white;
+		while (result == -2) {
+			//end cases to stop simulation
+			if (current_game->isCheckMate()) {
+				if (current_game->getCurrentTurn() == 0)
+					result = -1;
+				else
+					result = 1;
+			}
+			vector<Move> validMoves = eachMove(player(playerIsWhite));
+			playerIsWhite = !playerIsWhite;
+			if (validMoves.size() == 0 || current_game->fiftyMoveRule()) {
+				//no more moves and not a checkmate or fifty move rule causes stalemate
+				current_game->setStaleMate();
+				result = 0;
+			}
+			//do rollout policy
+			if (result == -2)
+				movePiece(validMoves[rand() % validMoves.size()]);
 		}
 		//backpropagation - back propagate result up the tree
-
+		if (!leaf->backpropagate(result, white))
+			cout << "***BACKPROPAGATE ERROR***" << "\n";
 		//reset to original state
 		load();
 	}
 	saves->pop();
-	//do best move
-
-	return *MCTree;
+	//assign best move the best move
+	bestMove = MCTree->bestChild()->getLastMove();
+	return true;
 }
 
 

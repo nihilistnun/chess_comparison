@@ -1330,9 +1330,9 @@ bool movePiece(Algorithms::Move move)
 		}
 	}
 
-	//printLogo();
-	//printSituation(*current_game);
-	//printBoard(*current_game);
+	/*printLogo();
+	printSituation(*current_game);
+	printBoard(*current_game);*/
 	return true;
 }
 
@@ -1481,15 +1481,21 @@ int main()
 					else
 					{
 						//clearScreen();
+						bool minimax = false;
+						int value;
 						Algorithms algo(current_game, allValidMoves, movePiece);
-						int value = algo.minimaxSearch(current_game->getCurrentTurn() == Chess::WHITE_PLAYER);
+						if (minimax)
+							 value = algo.minimaxSearch(current_game->getCurrentTurn() == Chess::WHITE_PLAYER);
+						else
+							algo.monteCarloTreeSearch(current_game->getCurrentTurn() == Chess::WHITE_PLAYER);
 						algo.doBestMove();
-						printLogo(); 
+						printLogo();
 						printSituation(*current_game);
 						printBoard(*current_game);
 						//do something
-						cout << "Minimax Value: " << value << "\n";
-						
+						if (minimax)
+							cout << "Minimax Value: " << value << "\n";
+
 						//vector<Algorithms::Move> moves = allValidMoves(current_game->getCurrentTurn() == 0 ? Chess::WHITE_PLAYER : Chess::BLACK_PLAYER);
 						//for (const auto& i : moves)
 						//	cout << '(' << char('A' + i.present.iColumn) << i.present.iRow+1
